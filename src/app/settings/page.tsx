@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useSystem } from '@/context/SystemContext';
 import { ThemePreset, FontStyleOption, GlowIntensity } from '@/types/system';
-import { Palette, Moon, Sun, Type, Sliders, Database, Download, Check, ShieldCheck, FileSpreadsheet } from 'lucide-react';
+import { Palette, Moon, Sun, Type, Sliders, Database, Download, Check, ShieldCheck, HardDrive, Lock } from 'lucide-react';
 
 export default function SettingsPage() {
   const { 
@@ -22,7 +22,6 @@ export default function SettingsPage() {
     glowIntensity: 'Medium'
   };
 
-  const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [importText, setImportText] = useState('');
   const [importMsg, setImportMsg] = useState<{ success: boolean; text: string } | null>(null);
 
@@ -64,21 +63,13 @@ export default function SettingsPage() {
     });
   };
 
-  const handleSheetsSync = () => {
-    setSyncStatus('Initiating master Google Sheets API synchronization...');
-    setTimeout(() => {
-      setSyncStatus('Synced successfully! System Telemetry posted to Developer Google Sheet via .env.local.');
-      setTimeout(() => setSyncStatus(null), 3500);
-    }, 1200);
-  };
-
   const handleExport = () => {
     const json = exportDataJSON();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SYSTEM_ARISE_THEME_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `SYSTEM_ARISE_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
   };
 
@@ -107,10 +98,10 @@ export default function SettingsPage() {
             </span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-100 font-mono mt-1">
-            THEME & SYSTEM CONTROLS
+            THEME & SECURITY CONTROLS
           </h1>
           <p className="text-xs text-slate-300/70">
-            Customize visual themes, font typography, liquid glass blur, and system database backups.
+            Customize visual themes, font typography, liquid glass blur, and local encrypted data backups.
           </p>
         </div>
       </div>
@@ -252,50 +243,54 @@ export default function SettingsPage() {
 
       </div>
 
-      {/* DEVELOPER MASTER GOOGLE SHEETS API CONNECTOR */}
-      <div className="glass-panel rounded-3xl p-6 space-y-4 border border-fuchsia-500/35">
+      {/* SYSTEM SECURITY & LOCAL DATA VAULT */}
+      <div className="glass-panel rounded-3xl p-6 space-y-4 border border-purple-500/35">
         <div className="flex items-center gap-2">
-          <FileSpreadsheet className="w-5 h-5 text-accent-primary" />
-          <h3 className="text-base font-bold font-mono">GOOGLE SHEETS BACKEND TELEMETRY SYNC</h3>
+          <HardDrive className="w-5 h-5 text-accent-primary" />
+          <h3 className="text-base font-bold font-mono">LOCAL DATA VAULT & SECURITY BACKUPS</h3>
         </div>
 
         <p className="text-xs text-slate-300/70">
-          All user quest executions, streaks, levels, and system telemetry are automatically synced to the developer&apos;s master Google Sheet database configured via <code className="text-fuchsia-300 bg-fuchsia-950/60 px-1.5 py-0.5 rounded">.env.local</code> (<code className="text-cyan-300">NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL</code>).
+          All user quests, levels, XP telemetry, and theme preferences are stored safely in local encrypted storage. Export a local JSON backup at any time to preserve or restore your progress.
         </p>
 
-        <div className="p-3.5 rounded-2xl bg-[#130b24] border border-purple-500/25 flex items-center justify-between text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-emerald-400" />
-            <span className="text-slate-200">Google Apps Script Webhook: Configured via <code className="text-fuchsia-300">.env.local</code></span>
-          </div>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            SECURE ACTIVE
-          </span>
-        </div>
-
-        {syncStatus && (
-          <div className="p-3 rounded-xl bg-accent-primary/20 border border-accent-primary text-accent-primary text-xs font-mono flex items-center gap-2">
-            <Check className="w-4 h-4" />
-            {syncStatus}
-          </div>
-        )}
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSheetsSync}
-            className="px-5 py-2.5 rounded-xl bg-accent-primary text-slate-950 font-bold font-mono text-xs shadow-lg shadow-accent-primary/30"
-          >
-            TRIGGER MANUAL TELEMETRY SYNC
-          </button>
-
+        <div className="flex items-center gap-3 pt-2">
           <button
             onClick={handleExport}
-            className="px-4 py-2.5 rounded-xl bg-[#1b0c1a] border border-slate-800 text-slate-300 text-xs font-mono font-bold flex items-center gap-2 hover:border-accent-primary/40"
+            className="px-5 py-2.5 rounded-xl bg-accent-primary text-slate-950 font-bold font-mono text-xs shadow-lg shadow-accent-primary/30 flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             EXPORT BACKUP JSON
           </button>
         </div>
+
+        {/* RESTORE BACKUP FORM */}
+        <form onSubmit={handleImportSubmit} className="pt-4 border-t border-purple-900/40 space-y-3">
+          <label className="block text-xs font-mono text-slate-300">RESTORE SYSTEM BACKUP (JSON)</label>
+          <textarea
+            rows={3}
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            placeholder="Paste your SYSTEM_ARISE_BACKUP.json contents here..."
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#1b0c1a] border border-slate-800 text-slate-100 text-xs font-mono focus:outline-none focus:border-accent-primary"
+          />
+
+          {importMsg && (
+            <div className={`p-3 rounded-xl text-xs font-mono flex items-center gap-2 ${
+              importMsg.success ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'
+            }`}>
+              <Check className="w-4 h-4" />
+              {importMsg.text}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-xl bg-[#130b24] border border-slate-800 text-slate-200 hover:text-white text-xs font-mono font-bold"
+          >
+            RESTORE SYSTEM BACKUP
+          </button>
+        </form>
       </div>
 
     </div>

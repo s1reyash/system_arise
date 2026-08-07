@@ -14,6 +14,7 @@ import {
   Settings,
   Sparkles,
   ChevronRight,
+  KeyRound,
   Shield,
   Trophy
 } from 'lucide-react';
@@ -25,6 +26,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { name: 'System HUD', href: '/', icon: LayoutDashboard },
+    { name: 'Login Portal', href: '/auth', icon: KeyRound },
     { name: 'Daily Quests', href: '/habits', icon: CheckSquare },
     { name: 'Goals & Targets', href: '/goals', icon: Target },
     { name: 'Rankboard & Guilds', href: '/leaderboard', icon: Trophy },
